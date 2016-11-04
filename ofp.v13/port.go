@@ -9,74 +9,64 @@ import (
 )
 
 const (
-	PF_10MB_HD  PortFeatures = 1 << iota
-	PF_10MB_FD  PortFeatures = 1 << iota
-	PF_100MB_HD PortFeatures = 1 << iota
-	PF_100MB_FD PortFeatures = 1 << iota
-	PF_1GB_HD   PortFeatures = 1 << iota
-	PF_1GB_FD   PortFeatures = 1 << iota
-	PF_10GB_FD  PortFeatures = 1 << iota
-	PF_40GB_FD  PortFeatures = 1 << iota
-	PF_100GB_FD PortFeatures = 1 << iota
-	PF_1TB_FD   PortFeatures = 1 << iota
-	PF_OTHER    PortFeatures = 1 << iota
+	PortFeature10MbitHalfDuplex  PortFeature = 1 << iota
+	PortFeature10MbitFullDuplex  PortFeature = 1 << iota
+	PortFeature100MbitHalfDuplex PortFeature = 1 << iota
+	PortFeature100MbitFullDuplex PortFeature = 1 << iota
+	PortFeature1GbitHalfDuplex   PortFeature = 1 << iota
+	PortFeature1GbitFullDuplex   PortFeature = 1 << iota
+	PortFeature10GbitFullDuplex  PortFeature = 1 << iota
+	PortFeature40GbitFullDuplex  PortFeature = 1 << iota
+	PortFeature100GbitFullDuplex PortFeature = 1 << iota
+	PortFeature1TbitFullDuplex   PortFeature = 1 << iota
+	PortFeatureOther             PortFeature = 1 << iota
 
-	PF_COPPER     PortFeatures = 1 << iota
-	PF_FIBER      PortFeatures = 1 << iota
-	PF_AUTONEG    PortFeatures = 1 << iota
-	PF_PAUSE      PortFeatures = 1 << iota
-	PF_PAUSE_ASYM PortFeatures = 1 << iota
+	PortFeatureCopper    PortFeature = 1 << iota
+	PortFeatureFiber     PortFeature = 1 << iota
+	PortFeatureAutoneg   PortFeature = 1 << iota
+	PortFeaturePause     PortFeature = 1 << iota
+	PortFeaturePauseAsym PortFeature = 1 << iota
+)
+
+const (
+	portFeatureSpeedMask  = 0x000007ff
+	portFeatureMediumMask = 0x0000f800
 )
 
 type PortFeatures uint32
 
+var portFeaturesText = map[PortFeatures]string{
+	PortFeature10MbitHalfDuplex:  "10 Mbps half-duplex",
+	PortFeature10MbitFullDuplex:  "10 Mbps full-duplex",
+	PortFeature100MbitHalfDuplex: "100 Mbps half-duplex",
+	PortFeature100MbitFullDuplex: "100 Mbps full-duplex",
+	PortFeature1GbitHalfDuplex:   "1 Gbps half-duplex",
+	PortFeature1GbitFullDuplex:   "1 Gbps full-duplex",
+	PortFeature10GbitFullDuplex:  "10 Gbps full-duplex",
+	PortFeature40GbitFullDuplex:  "40 Gbps full-duplex",
+	PortFeature100GbitFullDuplex: "100 Gbps full-duplex",
+	PortFeature1TbitFullDuplex:   "1 Tbps full-duplex",
+	PortFeatureOther:             "other",
+
+	PortFeatureCopper:    "copper",
+	PortFeatureFiber:     "fiber",
+	PortFeatureAutoneg:   "autoneg",
+	PortFeaturePause:     "pause",
+	PortFeaturePauseAsym: "pause asym",
+}
+
 func (f PortFeatures) String() string {
-	// 10Mbps full-duplex copper
-	var repr string
-
-	switch {
-	case f&PF_10MB_HD != 0:
-		repr = "10 Mbps half-duplex"
-	case f&PF_10MB_FD != 0:
-		repr = "10 Mbps full-duplex"
-	case f&PF_100MB_HD != 0:
-		repr = "100 Mbps half-duplex"
-	case f&PF_100MB_FD != 0:
-		repr = "100 Mbps full-duplex"
-	case f&PF_1GB_HD != 0:
-		repr = "1 Gbps half-duplex"
-	case f&PF_1GB_FD != 0:
-		repr = "1 Gbps full-duplex"
-	case f&PF_10GB_FD != 0:
-		repr = "10 Gbps full-duplex"
-	case f&PF_40GB_FD != 0:
-		repr = "40 Gbps full-duplex"
-	case f&PF_100GB_FD != 0:
-		repr = "100 Gbps full-duplex"
-	case f&PF_1TB_FD != 0:
-		repr = "1 Tbps full-duplex"
-	case f&PF_OTHER != 0:
-		repr = "other"
-	default:
-		repr = "unknown"
+	speed, ok := portFeaturesText[f&portFeatureSpeedMask]
+	if !ok {
+		speed = "unknown"
 	}
 
-	switch {
-	case f&PF_COPPER != 0:
-		repr += " copper"
-	case f&PF_FIBER != 0:
-		repr += " fiber"
-	case f&PF_AUTONEG != 0:
-		repr += " autoneg"
-	case f&PF_PAUSE != 0:
-		repr += " pause"
-	case f&PF_PAUSE_ASYM != 0:
-		repr += " pause asym"
-	default:
-		repr += " unknown"
+	medium, ok := portFeaturesText[f&portFeatureMediumMask]
+	if !ok {
+		medium = "unknown"
 	}
 
-	return repr
+	return fmt.Sprintf("%s %s", speed, medium)
 }
 
 const (
